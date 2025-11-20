@@ -2,9 +2,11 @@
     "name": "viajeros_peru/backend",
     "type": "project",
     "require": {
-        "php": "^8.0",
+        "php": "^8.2",
         "ext-pdo": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-filter": "*"
     },
     "scripts": {
         "start": "php -S 0.0.0.0:${PORT:-8000} -t ."
