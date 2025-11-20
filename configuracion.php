@@ -3,6 +3,23 @@
 class Configuracion {
 
     public static function getDBConfig() {
+        // Primero intentar DATABASE_URL (formato de Railway)
+        $databaseUrl = getenv('DATABASE_URL');
+        
+        if ($databaseUrl) {
+            // Parsear la URL: mysql://usuario:contraseña@host:puerto/basedatos
+            $parsed = parse_url($databaseUrl);
+            
+            return [
+                'servidor' => $parsed['host'] ?? 'localhost',
+                'puerto' => $parsed['port'] ?? '3306',
+                'nombre' => ltrim($parsed['path'] ?? '', '/'),
+                'usuario' => $parsed['user'] ?? 'root',
+                'contrasena' => $parsed['pass'] ?? ''
+            ];
+        }
+        
+        // Fallback: variables individuales para desarrollo local
         return [
             'servidor' => getenv('MYSQLHOST') ?: 'localhost',
             'puerto' => getenv('MYSQLPORT') ?: '3306',
