@@ -1,9 +1,63 @@
 <?php
-// Archivo puente: incluye la configuración principal ubicada en app/config/
-require_once realpath(__DIR__ . '/../app/config/configuracion.php');
+// Configuración unificada para Railway
+class Configuracion {
+    // Base de datos - Railway inyecta estas variables automáticamente
+    const BD_SERVIDOR = null; // Se obtendrá de getenv()
+    const BD_NOMBRE = null;
+    const BD_USUARIO = null;
+    const BD_CONTRASENA = null;
+    
+    // Obtener configuración de BD desde variables de entorno de Railway
+    public static function getDBConfig() {
+        return [
+            'servidor' => getenv('MYSQLHOST') ?: 'localhost',
+            'nombre' => getenv('MYSQLDATABASE') ?: 'viajeros_peru',
+            'usuario' => getenv('MYSQLUSER') ?: 'root',
+            'contrasena' => getenv('MYSQLPASSWORD') ?: '',
+            'puerto' => getenv('MYSQLPORT') ?: '3306'
+        ];
+    }
+    
+    // Configuración de la aplicación
+    const APP_NOMBRE = 'Viajeros Perú';
+    const APP_VERSION = '1.0.0';
+    
+    // Configuración de seguridad
+    const CLAVE_SECRETA = null; // Se configurará en Railway
+    
+    public static function getJWTSecret() {
+        return getenv('JWT_SECRET') ?: 'viajeros_peru_clave_secreta_2024';
+    }
+    
+    // Configuración de subida de archivos (ajustar para Railway)
+    public static function getUploadPath() {
+        return getenv('UPLOAD_PATH') ?: __DIR__ . '/uploads/';
+    }
+    
+    public static function getUploadUrl() {
+        return getenv('UPLOAD_URL') ?: '/uploads/';
+    }
+    
+    const TAMANIO_MAXIMO = 5 * 1024 * 1024;
+    const TIPOS_PERMITIDOS = ['image/jpeg', 'image/png', 'image/gif'];
+}
 
-// Reexportar la clase Configuracion (ya definida en app/config/configuracion.php)
-// Este archivo existe para mantener compatibilidad con includes que esperan
-// backend/configuracion.php en la estructura original.
+// Manejo de errores - En producción mostrar menos errores
+if (getenv('RAILWAY_ENVIRONMENT') === 'production') {
+    error_reporting(E_ERROR);
+    ini_set('display_errors', 0);
+} else {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
 
+// Configuración de zona horaria
+date_default_timezone_set('America/Lima');
+
+// Iniciar sesión si es necesario
+if (session_status() == PHP_SESSION_NONE && !headers_sent()) {
+    session_start();
+}
+
+error_log("✅ Configuración Railway cargada");
 ?>

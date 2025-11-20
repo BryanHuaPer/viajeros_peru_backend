@@ -1,23 +1,22 @@
-
 <?php
-// Bootstrap de rutas absolutas
-require_once realpath(__DIR__ . '/../../app/config/bootstrap.php');
-// Configuración central (archivo puente en backend/ que incluye la clase Configuracion)
-require_once BASE_PATH . '/backend/configuracion.php';
+require_once '../configuracion.php';
 
 class ConexionBD {
     private $conexion;
 
     public function __construct() {
         try {
-            $dsn = "mysql:host=" . Configuracion::BD_SERVIDOR .
-                   ";dbname=" . Configuracion::BD_NOMBRE .
+            $config = Configuracion::getDBConfig();
+            
+            $dsn = "mysql:host=" . $config['servidor'] .
+                   ";port=" . $config['puerto'] .
+                   ";dbname=" . $config['nombre'] .
                    ";charset=utf8";
 
             $this->conexion = new PDO(
                 $dsn,
-                Configuracion::BD_USUARIO,
-                Configuracion::BD_CONTRASENA,
+                $config['usuario'],
+                $config['contrasena'],
                 [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -25,23 +24,24 @@ class ConexionBD {
                 ]
             );
 
-            error_log("✅ Conexión a BD exitosa");
+            error_log("✅ Conexión a BD Railway exitosa");
 
         } catch (PDOException $e) {
-            error_log("❌ Error de conexión a BD: " . $e->getMessage());
-            // Enviar error como JSON en lugar de morir
+            error_log("❌ Error de conexión a BD Railway: " . $e->getMessage());
+            
             if (!headers_sent()) {
                 header('Content-Type: application/json');
             }
             echo json_encode([
                 'exito' => false,
                 'error' => 'Error de conexión a la base de datos',
-                'debug' => $e->getMessage()
+                'debug' => 'Verifica las variables de entorno en Railway'
             ]);
             exit;
         }
     }
 
+    // Mantener todos tus métodos existentes...
     public function obtenerConexion() {
         return $this->conexion;
     }
@@ -54,7 +54,6 @@ class ConexionBD {
         } catch (PDOException $e) {
             error_log("❌ Error en consulta SQL: " . $e->getMessage());
             error_log("SQL: " . $sql);
-            error_log("Parámetros: " . print_r($parametros, true));
             return false;
         }
     }
@@ -78,11 +77,9 @@ class ConexionBD {
 try {
     $conexionBD = new ConexionBD();
     $conexion = $conexionBD->obtenerConexion();
-    // Hacer disponible la conexión también en $GLOBALS para compatibilidad
     $GLOBALS['conexion'] = $conexion;
 } catch (Exception $e) {
-    error_log("Error inicializando conexión: " . $e->getMessage());
+    error_log("Error inicializando conexión Railway: " . $e->getMessage());
     $conexion = null;
 }
-
 ?>
