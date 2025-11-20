@@ -1,0 +1,10 @@
+{
+    "name": "BryanHuaPer/viajeros_peru_backend",
+    "require": {
+        "php": "^8.0",
+        "ext-pdo": "*"
+    },
+    "scripts": {
+        "start": "php -S 0.0.0.0:${PORT:-8000} -t public"
+    }
+}
