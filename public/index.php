@@ -1,6 +1,7 @@
 <?php
 // public/index.php
 require_once __DIR__ . '/../configuracion.php';
+require_once __DIR__ . '/../base_datos/conexion.php';
 
 header('Content-Type: application/json');
 
@@ -16,42 +17,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 $request = $_SERVER['REQUEST_URI'];
 $path = parse_url($request, PHP_URL_PATH);
 
-// Log para debugging
-error_log("📥 Request: " . $path);
+error_log("🎯 Request recibido: " . $path);
 
-switch ($path) {
-    case '/':
-        echo json_encode([
-            'mensaje' => 'API Viajeros Perú - FrankenPHP',
-            'estado' => 'online',
-            'timestamp' => date('Y-m-d H:i:s')
-        ]);
-        break;
-        
-    case '/test':
-        require __DIR__ . '/../test_connection.php';
-        break;
-        
-    case '/health':
-        echo json_encode(['status' => 'ok']);
-        break;
-        
-    default:
-        // Routing para API
-        if (str_starts_with($path, '/api/')) {
-            $api_file = substr($path, 5) . '.php';
-            $api_path = __DIR__ . '/../api/' . $api_file;
-            
-            if (file_exists($api_path)) {
-                require $api_path;
-            } else {
-                http_response_code(404);
-                echo json_encode(['error' => 'Endpoint no encontrado: ' . $api_file]);
-            }
-        } else {
-            http_response_code(404);
-            echo json_encode(['error' => 'Ruta no encontrada: ' . $path]);
-        }
-        break;
+// SIMPLE - Solo probar conexión primero
+if ($path === '/test') {
+    require __DIR__ . '/../test_connection.php';
+    exit;
 }
+
+// HEALTH CHECK mínimo
+if ($path === '/health' || $path === '/') {
+    echo json_encode([
+        'status' => 'online', 
+        'message' => 'API Viajeros Perú',
+        'timestamp' => date('Y-m-d H:i:s')
+    ]);
+    exit;
+}
+
+// Routing API
+if (str_starts_with($path, '/api/')) {
+    $api_file = substr($path, 5) . '.php'; // quita "/api/"
+    $api_path = __DIR__ . '/../api/' . $api_file;
+    
+    error_log("🔍 Buscando archivo API: " . $api_path);
+    
+    if (file_exists($api_path)) {
+        require $api_path;
+    } else {
+        http_response_code(404);
+        echo json_encode(['error' => 'Endpoint no encontrado', 'file' => $api_file]);
+    }
+    exit;
+}
+
+// 404 para cualquier otra ruta
+http_response_code(404);
+echo json_encode(['error' => 'Ruta no encontrada', 'path' => $path]);
 ?>
