@@ -1,0 +1,10 @@
+{
+    http_port 8000
+    https_port 8443
+}
+
+:8000 {
+    root * /app
+    php
+    file_server
+}
