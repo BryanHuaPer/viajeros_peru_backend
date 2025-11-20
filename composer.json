@@ -8,10 +8,10 @@
         "ext-mbstring": "*",
         "ext-filter": "*"
     },
+    "autoload": {
+        "classmap": []
+    },
     "scripts": {
         "start": "php -S 0.0.0.0:${PORT:-8000} -t ."
-    },
-    "autoload": {
-        "classmap": ["api/", "base_datos/"]
     }
 }
