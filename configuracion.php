@@ -1,20 +1,14 @@
 <?php
 // Configuración unificada para Railway
 class Configuracion {
-    // Base de datos - Railway inyecta estas variables automáticamente
-    const BD_SERVIDOR = null; // Se obtendrá de getenv()
-    const BD_NOMBRE = null;
-    const BD_USUARIO = null;
-    const BD_CONTRASENA = null;
-    
-    // Obtener configuración de BD desde variables de entorno de Railway
+
     public static function getDBConfig() {
         return [
             'servidor' => getenv('MYSQLHOST') ?: 'localhost',
+            'puerto' => getenv('MYSQLPORT') ?: '3306',
             'nombre' => getenv('MYSQLDATABASE') ?: 'viajeros_peru',
             'usuario' => getenv('MYSQLUSER') ?: 'root',
-            'contrasena' => getenv('MYSQLPASSWORD') ?: '',
-            'puerto' => getenv('MYSQLPORT') ?: '3306'
+            'contrasena' => getenv('MYSQLPASSWORD') ?: ''
         ];
     }
     

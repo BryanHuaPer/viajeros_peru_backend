@@ -1,0 +1,10 @@
+{
+    http_port 8000
+    https_port 8443
+}
+
+:8000 {
+    root * /app/public
+    php_frankenphp
+    file_server
+}
